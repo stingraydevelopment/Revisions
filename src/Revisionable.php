@@ -2,8 +2,9 @@
 
 namespace Stingraydevelopment\Revisionable;
 
-use Illuminate\Support\Arr;
 use Illuminate\Database\Eloquent\Model as Eloquent;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 /*
  * This file is part of the Revisionable package by Venture Craft
@@ -276,9 +277,11 @@ class Revisionable extends Eloquent
                 return \Auth::user()->getAuthIdentifier();
             }
         } catch (\Exception $e) {
+            Log::debug($this->updatedData);
             return null;
         }
 
+        Log::debug($this->updatedData);
         return null;
     }
 
