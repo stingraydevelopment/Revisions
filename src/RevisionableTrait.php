@@ -44,6 +44,16 @@ trait RevisionableTrait
     private $doKeep = array();
 
     /**
+     * @var array
+     */
+    private $request = array();
+
+    /**
+     * @var array
+     */
+    private $rawAttributes = [];
+
+    /**
      * Keeps the list of values that have been updated
      *
      * @var array
@@ -89,6 +99,38 @@ trait RevisionableTrait
             $model->postDelete();
             $model->postForceDelete();
         });
+    }
+
+    /**
+     * Fill the model with an array of attributes.
+     *
+     * @param  array  $attributes
+     * @return $this
+     *
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function fill(array $attributes)
+    {
+        $this->rawAttributes = $attributes;
+
+        $totallyGuarded = $this->totallyGuarded();
+
+        foreach ($this->fillableFromArray($attributes) as $key => $value) {
+            // The developers may choose to place some attributes in the "fillable" array
+            // which means only those attributes may be set through mass assignment to
+            // the model, and all others will just get ignored for security reasons.
+            if ($this->isFillable($key)) {
+                $this->setAttribute($key, $value);
+            } elseif ($totallyGuarded) {
+                throw new MassAssignmentException(sprintf(
+                    'Add [%s] to fillable property to allow mass assignment on [%s].',
+                    $key,
+                    get_class($this)
+                ));
+            }
+        }
+
+        return $this;
     }
 
     /**
@@ -322,17 +364,16 @@ trait RevisionableTrait
     public function getSystemUserId()
     {
         try {
-            if ($this->updatedData['revisionable_user_id']) {
-                return $this->updatedData['revisionable_user_id'];
+            if ($this->rawAttributes['revisionable_user_id']) {
+                return $this->rawAttributes['revisionable_user_id'];
             } elseif (\Auth::check()) {
                 return \Auth::user()->getAuthIdentifier();
             }
         } catch (\Exception $e) {
-            Log::debug($this->updatedData);
+            Log::debug('Revisionable_user_id = ' . $this->rawAttributes['revisionable_user_id']);
             return null;
         }
 
-        Log::debug($this->updatedData);
         return null;
     }
 
