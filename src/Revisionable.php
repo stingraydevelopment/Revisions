@@ -271,17 +271,16 @@ class Revisionable extends Eloquent
     private function getSystemUserId()
     {
         try {
-            if ($this->updatedData['revisionable_user_id']) {
+            if ($this->rawAttributes['revisionable_user_id']) {
                 return $this->updatedData['revisionable_user_id'];
             } elseif (\Auth::check()) {
                 return \Auth::user()->getAuthIdentifier();
             }
         } catch (\Exception $e) {
-            Log::debug($this->updatedData);
+            Log::debug('Revisionable_user_id = ' . $this->rawAttributes['revisionable_user_id']);
             return null;
         }
 
-        Log::debug($this->updatedData);
         return null;
     }
 
