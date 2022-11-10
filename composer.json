@@ -1,0 +1,54 @@
+{
+    "name": "stingraydevelopment/revisionable",
+    "description": "This package tracks changes to Laravel models.",
+    "keywords": [
+        "stingraydevelopment",
+        "revisionable"
+    ],
+    "homepage": "https://github.com/stingraydevelopment/revisionable",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Dan Castanera",
+            "email": "dan@stingraydev.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Stingraydevelopment\\Revisionable\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Stingraydevelopment\\Revisionable\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Stingraydevelopment\\Revisionable\\RevisionableServiceProvider"
+            ],
+            "aliases": {
+                "Revisionable": "Stingraydevelopment\\Revisionable\\RevisionableFacade"
+            }
+        }
+    }
+}
