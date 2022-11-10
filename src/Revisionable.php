@@ -52,6 +52,11 @@ class Revisionable extends Eloquent
     protected $dirtyData = array();
 
     /**
+     * @var array
+     */
+    private $rawAttributes = [];
+
+    /**
      * Create the event listeners for the saving and saved events
      * This lets us save revisions whenever a save is made, no matter the
      * http method.
@@ -78,6 +83,39 @@ class Revisionable extends Eloquent
             $model->postForceDelete();
         });
     }
+
+    /**
+     * Fill the model with an array of attributes.
+     *
+     * @param  array  $attributes
+     * @return $this
+     *
+     * @throws \Illuminate\Database\Eloquent\MassAssignmentException
+     */
+    public function fill(array $attributes)
+    {
+        $this->rawAttributes = $attributes;
+
+        $totallyGuarded = $this->totallyGuarded();
+
+        foreach ($this->fillableFromArray($attributes) as $key => $value) {
+            // The developers may choose to place some attributes in the "fillable" array
+            // which means only those attributes may be set through mass assignment to
+            // the model, and all others will just get ignored for security reasons.
+            if ($this->isFillable($key)) {
+                $this->setAttribute($key, $value);
+            } elseif ($totallyGuarded) {
+                throw new MassAssignmentException(sprintf(
+                    'Add [%s] to fillable property to allow mass assignment on [%s].',
+                    $key,
+                    get_class($this)
+                ));
+            }
+        }
+
+        return $this;
+    }
+
     /**
      * Instance the revision model
      * @return \Illuminate\Database\Eloquent\Model
