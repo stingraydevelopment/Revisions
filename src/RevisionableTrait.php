@@ -61,6 +61,11 @@ trait RevisionableTrait
     protected $dirtyData = array();
 
     /**
+     * Revisionable User Id
+     */
+    protected $revisionable_user_id = null;
+
+    /**
      * Ensure that the bootRevisionableTrait is called only
      * if the current installation is a laravel 4 installation
      * Laravel 5 will call bootRevisionableTrait() automatically
@@ -162,6 +167,14 @@ trait RevisionableTrait
      */
     public function preSave()
     {
+        // Check to see if there is a revisionable_user_id attached to the model.
+        if (isset($this->attributes['revisionable_user_id'])) {
+            // Set it locally to the model.
+            $this->revisionable_user_id = $this->attributes['revisionable_user_id'];
+            // Remove it from the attributes to not trigger a missing column error.
+            unset($this->attributes['revisionable_user_id']);
+        }
+
         if (!isset($this->revisionEnabled) || $this->revisionEnabled) {
             // if there's no revisionEnabled. Or if there is, if it's true
 
@@ -366,6 +379,8 @@ trait RevisionableTrait
         try {
             if (isset($this->rawAttributes['revisionable_user_id'])) {
                 return $this->rawAttributes['revisionable_user_id'];
+            } elseif ($this->revisionable_user_id) {
+                return $this->revisionable_user_id;
             } elseif (\Auth::check()) {
                 return \Auth::user()->getAuthIdentifier();
             }
